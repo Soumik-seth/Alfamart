@@ -1,4 +1,3 @@
-
 /* =========================================
    FEATURED PRODUCTS SECTION
 ========================================= */
@@ -75,6 +74,11 @@
 .featured-card:hover {
   transform: translateY(-5px);
   box-shadow: 0 10px 25px rgba(38, 61, 39, 0.1);
+}
+
+/* clone card gulo desktop/tablet e hide (shudhu mobile loop er jonno) */
+.featured-clone {
+  display: none;
 }
 
 /* PRODUCT IMAGE */
@@ -201,10 +205,15 @@
   color: white;
 }
 
-/* SLIDER CONTROLS */
+/* SLIDER CONTROLS (desktop e hidden) */
 
 .featured-slider-controls {
   display: none;
+}
+
+/* jump er somoy animation off, jate flash na kore */
+.featured-grid.no-anim .featured-card {
+  transition: none !important;
 }
 
 /* =========================================
@@ -274,12 +283,8 @@
     min-width: 0;
     scroll-snap-align: start;
     border-radius: 9px;
-  }
-
 
     /* 360° ROTATE ANIMATION (mobile only) */
-
-  .featured-card {
     opacity: 0;
     transform: perspective(900px) rotateY(-360deg) scale(0.6);
     transition:
@@ -288,175 +293,14 @@
     will-change: transform, opacity;
   }
 
+  /* mobile e clone gulo dekhabe (infinite loop er jonno) */
+  .featured-card.featured-clone {
+    display: block;
+  }
+
   .featured-card.is-visible {
     opacity: 1;
     transform: perspective(900px) rotateY(0deg) scale(1);
   }
 
-  /* mobile e hover er translateY jate rotation er sathe conflict na kore */
-  .featured-card.is-visible:hover {
-    transform: perspective(900px) rotateY(0deg) scale(1);
-    box-shadow: none;
-  }
-
-  .featured-image {
-    aspect-ratio: 1 / 1;
-  }
-
-  .featured-img {
-    padding: 8px;
-  }
-
-  .discount-badge {
-    top: 7px;
-    left: 7px;
-    font-size: 9px;
-    padding: 5px 6px;
-  }
-
-  .featured-details {
-    padding: 10px;
-  }
-
-  .featured-details h3 {
-    font-size: 13px;
-    min-height: 36px;
-  }
-
-  .product-weight {
-    font-size: 11px;
-    margin-top: 5px;
-  }
-
-  .product-price {
-    gap: 7px;
-    margin: 10px 0;
-    flex-wrap: wrap;
-  }
-
-  .current-price {
-    font-size: 16px;
-  }
-
-  .original-price {
-    font-size: 11px;
-  }
-
-  .buy-now-btn {
-    min-height: 36px;
-    font-size: 12px;
-  }
-
-  /* MOBILE ARROWS AND DOTS */
-
-  .featured-slider-controls {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 17px;
-    width: 100%;
-    margin-top: 20px;
-  }
-
-  .slider-arrow {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 30px;
-    height: 30px;
-    padding: 0;
-    border: none;
-    background: transparent;
-    color: #555;
-    cursor: pointer;
-  }
-
-  .slider-arrow svg {
-    width: 23px;
-    height: 23px;
-    stroke-width: 2.5;
-  }
-
-  .slider-arrow:disabled {
-    color: #bdbdbd;
-    cursor: not-allowed;
-  }
-
-  .slider-dots {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-  }
-
-  .slider-dot {
-    width: 7px;
-    height: 7px;
-    min-width: 7px;
-    padding: 0;
-    border: none;
-    border-radius: 50%;
-    background: #a5a5a5;
-    cursor: pointer;
-    transition: all 0.25s ease;
-  }
-
-  .slider-dot.active {
-    width: 9px;
-    height: 9px;
-    min-width: 9px;
-    background: #222;
-  }
-
-  .featured-footer {
-    margin-top: 30px;
-  }
-
-  .view-all-btn {
-    padding: 11px 25px;
-    font-size: 13px;
-  }
-}
-
-/* SMALL MOBILE */
-
-@media (max-width: 360px) {
-  .featured-slider-controls {
-    gap: 10px;
-  }
-
-  .slider-dots {
-    gap: 7px;
-  }
-
-  .slider-dot {
-    width: 6px;
-    height: 6px;
-    min-width: 6px;
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .featured-card,
-  .featured-card.is-visible {
-    opacity: 1 !important;
-    transform: none !important;
-    transition: none !important;
-  }
-} 
-
-/* clone card gulo desktop/tablet e hide */
-.featured-clone {
-  display: none;
-}
-
-/* jump er somoy animation off, jate flash na kore */
-.featured-grid.no-anim .featured-card {
-  transition: none !important;
-}
-
-@media (max-width: 600px) {
-  /* mobile e clone gulo dekhabe (infinite loop er jonno) */
-  .featured-card.featured-clone {
-    display: block;
-  }
-}
+  /* hover er translateY jate rotation er sathe conflict na kore */

@@ -1,4 +1,3 @@
-
 "use client";
 import "../componentscss/FeaturedProducts.css";
 import Link from "next/link";
@@ -78,6 +77,7 @@ const products = [
     category: "mithai",
   },
 ];
+
 export default function FeaturedProducts() {
   const sliderRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -191,7 +191,7 @@ export default function FeaturedProducts() {
     scrollToCard(base + index);
   };
 
-  /* arrow: shesh e gele automatic first e ashbe, first e gele last e */
+  /* arrow: shesh e gele first e ashbe, first e gele last e */
   const handlePrevious = () => scrollToCard(absRef.current - 1);
   const handleNext = () => scrollToCard(absRef.current + 1);
 
@@ -221,8 +221,6 @@ export default function FeaturedProducts() {
     timerRef.current = setTimeout(recenter, 150);
   };
 
-  
-
   return (
     <section className="featured-section">
       <div className="featured-container">
@@ -247,9 +245,13 @@ export default function FeaturedProducts() {
           ref={sliderRef}
           onScroll={handleScroll}
         >
-          {products.map((product) => (
-            <div className="featured-card" key={product.id}>
-
+          {loopProducts.map((product, i) => (
+            <div
+              className={`featured-card ${
+                i < total || i >= total * 2 ? "featured-clone" : ""
+              }`}
+              key={`${product.id}-${i}`}
+            >
               <div className="featured-image">
                 <span className="discount-badge">
                   {product.discount}
@@ -288,52 +290,42 @@ export default function FeaturedProducts() {
                   Buy Now
                 </Link>
               </div>
-
             </div>
           ))}
         </div>
 
         <div className="featured-slider-controls">
-
           <button
             type="button"
             className="slider-arrow"
             onClick={handlePrevious}
-            disabled={activeIndex === 0}
             aria-label="Previous product"
           >
             <ChevronLeft />
           </button>
 
           <div className="slider-dots">
-       {loopProducts.map((product, i) => (
-  <div
-    className={`featured-card ${
-      i < total || i >= total * 2 ? "featured-clone" : ""
-    }`}
-    key={`${product.id}-${i}`}
-  >
-    {/* ... card er bhetore sob same ... */}
-  </div>
-))}
+            {products.map((product, index) => (
+              <button
+                key={product.id}
+                type="button"
+                className={`slider-dot ${
+                  activeIndex === index ? "active" : ""
+                }`}
+                onClick={() => scrollToProduct(index)}
+                aria-label={`Go to product ${index + 1}`}
+              />
+            ))}
           </div>
-<button
-  type="button"
-  className="slider-arrow"
-  onClick={handlePrevious}
-  aria-label="Previous product"
->
-  <ChevronLeft />
-</button>
-<button
-  type="button"
-  className="slider-arrow"
-  onClick={handleNext}
-  aria-label="Next product"
->
-  <ChevronRight />
-</button>
 
+          <button
+            type="button"
+            className="slider-arrow"
+            onClick={handleNext}
+            aria-label="Next product"
+          >
+            <ChevronRight />
+          </button>
         </div>
 
         <div className="featured-footer">
