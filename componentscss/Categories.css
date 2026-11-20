@@ -64,6 +64,11 @@
 
 /* CATEGORY CARD */
 
+
+
+
+/* CATEGORY CARD */
+
 .category-card {
   display: block;
   width: 100%;
@@ -71,7 +76,63 @@
   text-align: center;
   color: var(--text-dark, #263d27);
   text-decoration: none;
+
+  /* scroll animation initial state */
+  opacity: 0;
+  transition:
+    opacity 0.8s ease,
+    transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform, opacity;
 }
+
+/* odd cards -> left theke ashbe */
+.category-card:nth-child(odd) {
+  transform: translateX(-80px);
+}
+
+/* even cards -> right theke ashbe */
+.category-card:nth-child(even) {
+  transform: translateX(80px);
+}
+
+/* visible hole final position e ashbe */
+.category-card.is-visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* ektu stagger effect (ek ek kore ashbe) */
+.category-card:nth-child(1) { transition-delay: 0s; }
+.category-card:nth-child(2) { transition-delay: 0.1s; }
+.category-card:nth-child(3) { transition-delay: 0.2s; }
+.category-card:nth-child(4) { transition-delay: 0.3s; }
+.category-card:nth-child(5) { transition-delay: 0.1s; }
+.category-card:nth-child(6) { transition-delay: 0.2s; }
+.category-card:nth-child(7) { transition-delay: 0.3s; }
+
+/* mobile e distance kom rakhlam, jate horizontal scrollbar na ashe */
+@media (max-width: 600px) {
+  .category-card:nth-child(odd)  { transform: translateX(-40px); }
+  .category-card:nth-child(even) { transform: translateX(40px); }
+}
+
+/* jader device e "reduce motion" on, tader jonno animation off */
+@media (prefers-reduced-motion: reduce) {
+  .category-card,
+  .category-card:nth-child(odd),
+  .category-card:nth-child(even) {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+
+
+
+
+
+
 
 /* CATEGORY IMAGE */
 
@@ -168,3 +229,62 @@
     line-height: 1.4;
   }
 }
+/* CATEGORY CARD */
+
+.category-card {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  text-align: center;
+  color: var(--text-dark, #263d27);
+  text-decoration: none;
+
+  /* scroll animation initial state */
+  opacity: 0;
+  transition:
+    opacity 0.8s ease,
+    transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform, opacity;
+}
+
+/* odd cards -> left theke ashbe */
+.category-card:nth-child(odd) {
+  transform: translateX(-80px);
+}
+
+/* even cards -> right theke ashbe */
+.category-card:nth-child(even) {
+  transform: translateX(80px);
+}
+
+/* visible hole final position e ashbe */
+.category-card.is-visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* ektu stagger effect (ek ek kore ashbe) */
+.category-card:nth-child(1) { transition-delay: 0s; }
+.category-card:nth-child(2) { transition-delay: 0.1s; }
+.category-card:nth-child(3) { transition-delay: 0.2s; }
+.category-card:nth-child(4) { transition-delay: 0.3s; }
+.category-card:nth-child(5) { transition-delay: 0.1s; }
+.category-card:nth-child(6) { transition-delay: 0.2s; }
+.category-card:nth-child(7) { transition-delay: 0.3s; }
+
+/* mobile e distance kom rakhlam, jate horizontal scrollbar na ashe */
+@media (max-width: 600px) {
+  .category-card:nth-child(odd)  { transform: translateX(-40px); }
+  .category-card:nth-child(even) { transform: translateX(40px); }
+}
+
+/* jader device e "reduce motion" on, tader jonno animation off */
+@media (prefers-reduced-motion: reduce) {
+  .category-card,
+  .category-card:nth-child(odd),
+  .category-card:nth-child(even) {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+} 

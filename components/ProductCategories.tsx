@@ -1,46 +1,44 @@
+"use client";
 
+import { useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import "../componentscss/Categories.css";
+
 const categories = [
-  {
-    name: "A2 Gir Cow Ghee",
-    image: "/images/gee.png",
-    slug: "ghee",
-  },
-  {
-    name: "Honey",
-    image: "/images/honey.png",
-    slug: "honey",
-  },
-  {
-    name: "Cold Pressed / Wood Pressed Oil",
-    image: "/images/oil.png",
-    slug: "oil",
-  },
-  {
-    name: "CTC & Floral Tea",
-    image: "/images/tea.png",
-    slug: "tea",
-  },
-  {
-    name: "Juice, Jams & Chutney",
-    image: "/images/juice.png",
-    slug: "juice-jams-chutney",
-  },
-  {
-    name: "Seeds, Spreads & Dryfruits",
-    image: "/images/seeds.png",
-    slug: "seeds-dryfruits",
-  },
-  {
-    name: "Mithai",
-    image: "/images/mithi.png",
-    slug: "mithai",
-  },
+  { name: "A2 Gir Cow Ghee", image: "/images/gee.png", slug: "ghee" },
+  { name: "Honey", image: "/images/honey.png", slug: "honey" },
+  { name: "Cold Pressed / Wood Pressed Oil", image: "/images/oil.png", slug: "oil" },
+  { name: "CTC & Floral Tea", image: "/images/tea.png", slug: "tea" },
+  { name: "Juice, Jams & Chutney", image: "/images/juice.png", slug: "juice-jams-chutney" },
+  { name: "Seeds, Spreads & Dryfruits", image: "/images/seeds.png", slug: "seeds-dryfruits" },
+  { name: "Mithai", image: "/images/mithi.png", slug: "mithai" },
 ];
 
 export default function ProductCategories() {
+  const gridRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const cards = gridRef.current?.querySelectorAll<HTMLElement>(".category-card");
+    if (!cards) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("is-visible");
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.15 }
+    );
+
+    cards.forEach((card) => observer.observe(card));
+
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <section className="categories-section">
       <div className="categories-container">
@@ -60,7 +58,7 @@ export default function ProductCategories() {
           </p>
         </div>
 
-        <div className="categories-grid">
+        <div className="categories-grid" ref={gridRef}>
           {categories.map((category) => (
             <Link
               href={`/shop?category=${category.slug}`}
