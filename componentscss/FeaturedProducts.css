@@ -443,3 +443,20 @@
     transition: none !important;
   }
 } 
+
+/* clone card gulo desktop/tablet e hide */
+.featured-clone {
+  display: none;
+}
+
+/* jump er somoy animation off, jate flash na kore */
+.featured-grid.no-anim .featured-card {
+  transition: none !important;
+}
+
+@media (max-width: 600px) {
+  /* mobile e clone gulo dekhabe (infinite loop er jonno) */
+  .featured-card.featured-clone {
+    display: block;
+  }
+}

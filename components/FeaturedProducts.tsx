@@ -78,40 +78,102 @@ const products = [
     category: "mithai",
   },
 ];
-
 export default function FeaturedProducts() {
   const sliderRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
-useEffect(() => {
-  const slider = sliderRef.current;
-  if (!slider) return;
 
-  const cards = slider.querySelectorAll<HTMLElement>(".featured-card");
+  const total = products.length;
+  const loopProducts = [...products, ...products, ...products];
 
-  const observer = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add("is-visible");
-          observer.unobserve(entry.target);
-        }
-      });
-    },
-    { root: slider, threshold: 0.5 }
-  );
+  const absRef = useRef(total); // loop er bhetore current card er position
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  cards.forEach((card) => observer.observe(card));
+  const getCards = () =>
+    sliderRef.current?.querySelectorAll<HTMLElement>(".featured-card");
 
-  return () => observer.disconnect();
-}, []);
-  const scrollToProduct = (index: number) => {
+  /* majhkhaner set e silently jump (user bujhte parbe na) */
+  const recenter = () => {
     const slider = sliderRef.current;
-    if (!slider) return;
+    const cards = getCards();
+    if (!slider || !cards) return;
+    if (slider.scrollWidth <= slider.clientWidth) return; // desktop e kichu korbe na
 
-    const cards =
-      slider.querySelectorAll<HTMLElement>(".featured-card");
+    const abs = absRef.current;
+    if (abs >= total && abs < total * 2) return; // already majhkhane
 
-    const target = cards[index];
+    const shift = abs < total ? total : -total;
+    const from = cards[abs];
+    const to = cards[abs + shift];
+    if (!from || !to) return;
+
+    slider.classList.add("no-anim");
+
+    // jei card gulo dekha jachhe, tader twin ke age thekei visible kore rakho
+    cards.forEach((card, i) => {
+      if (card.classList.contains("is-visible")) {
+        cards[i + shift]?.classList.add("is-visible");
+      }
+    });
+
+    slider.style.scrollSnapType = "none";
+    slider.style.scrollBehavior = "auto";
+    slider.scrollLeft = slider.scrollLeft + (to.offsetLeft - from.offsetLeft);
+    absRef.current = abs + shift;
+
+    requestAnimationFrame(() =>
+      requestAnimationFrame(() => {
+        slider.style.scrollSnapType = "";
+        slider.style.scrollBehavior = "";
+        slider.classList.remove("no-anim");
+      })
+    );
+  };
+
+  /* shuru te majhkhaner set er prothom card e boshao + rotation observer */
+  useEffect(() => {
+    const slider = sliderRef.current;
+    const cards = getCards();
+    if (!slider || !cards) return;
+
+    if (slider.scrollWidth > slider.clientWidth && cards[total]) {
+      slider.style.scrollSnapType = "none";
+      slider.style.scrollBehavior = "auto";
+      slider.scrollLeft = cards[total].offsetLeft - slider.offsetLeft;
+      requestAnimationFrame(() => {
+        slider.style.scrollSnapType = "";
+        slider.style.scrollBehavior = "";
+      });
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.intersectionRatio >= 0.5) {
+            entry.target.classList.add("is-visible");
+          } else if (entry.intersectionRatio === 0) {
+            // card bahire gele reset, jate abar ashle abar ghure
+            entry.target.classList.remove("is-visible");
+          }
+        });
+      },
+      { root: slider, threshold: [0, 0.5] }
+    );
+
+    cards.forEach((card) => observer.observe(card));
+
+    return () => {
+      observer.disconnect();
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, [total]);
+
+  const scrollToCard = (abs: number) => {
+    const slider = sliderRef.current;
+    const cards = getCards();
+    if (!slider || !cards) return;
+
+    const safe = Math.max(0, Math.min(cards.length - 1, abs));
+    const target = cards[safe];
     if (!target) return;
 
     slider.scrollTo({
@@ -119,44 +181,47 @@ useEffect(() => {
       behavior: "smooth",
     });
 
-    setActiveIndex(index);
+    absRef.current = safe;
+    setActiveIndex(((safe % total) + total) % total);
   };
 
-  const handlePrevious = () => {
-    scrollToProduct(Math.max(0, activeIndex - 1));
+  /* dot click: nearest set er oi product e jabe */
+  const scrollToProduct = (index: number) => {
+    const base = Math.floor(absRef.current / total) * total;
+    scrollToCard(base + index);
   };
 
-  const handleNext = () => {
-    scrollToProduct(
-      Math.min(products.length - 1, activeIndex + 1)
-    );
-  };
+  /* arrow: shesh e gele automatic first e ashbe, first e gele last e */
+  const handlePrevious = () => scrollToCard(absRef.current - 1);
+  const handleNext = () => scrollToCard(absRef.current + 1);
 
   const handleScroll = () => {
     const slider = sliderRef.current;
-    if (!slider) return;
-
-    const cards =
-      slider.querySelectorAll<HTMLElement>(".featured-card");
+    const cards = getCards();
+    if (!slider || !cards) return;
 
     let nearestIndex = 0;
     let smallestDistance = Infinity;
 
     cards.forEach((card, index) => {
       const distance = Math.abs(
-        card.offsetLeft -
-        slider.offsetLeft -
-        slider.scrollLeft
+        card.offsetLeft - slider.offsetLeft - slider.scrollLeft
       );
-
       if (distance < smallestDistance) {
         smallestDistance = distance;
         nearestIndex = index;
       }
     });
 
-    setActiveIndex(nearestIndex);
+    absRef.current = nearestIndex;
+    setActiveIndex(nearestIndex % total);
+
+    // scroll thamle majhkhane jump korbe
+    if (timerRef.current) clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(recenter, 150);
   };
+
+  
 
   return (
     <section className="featured-section">
@@ -241,28 +306,33 @@ useEffect(() => {
           </button>
 
           <div className="slider-dots">
-            {products.map((product, index) => (
-              <button
-                key={product.id}
-                type="button"
-                className={`slider-dot ${
-                  activeIndex === index ? "active" : ""
-                }`}
-                onClick={() => scrollToProduct(index)}
-                aria-label={`Go to product ${index + 1}`}
-              />
-            ))}
+       {loopProducts.map((product, i) => (
+  <div
+    className={`featured-card ${
+      i < total || i >= total * 2 ? "featured-clone" : ""
+    }`}
+    key={`${product.id}-${i}`}
+  >
+    {/* ... card er bhetore sob same ... */}
+  </div>
+))}
           </div>
-
-          <button
-            type="button"
-            className="slider-arrow"
-            onClick={handleNext}
-            disabled={activeIndex === products.length - 1}
-            aria-label="Next product"
-          >
-            <ChevronRight />
-          </button>
+<button
+  type="button"
+  className="slider-arrow"
+  onClick={handlePrevious}
+  aria-label="Previous product"
+>
+  <ChevronLeft />
+</button>
+<button
+  type="button"
+  className="slider-arrow"
+  onClick={handleNext}
+  aria-label="Next product"
+>
+  <ChevronRight />
+</button>
 
         </div>
 
