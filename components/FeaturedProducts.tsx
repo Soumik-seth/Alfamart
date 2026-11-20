@@ -85,21 +85,21 @@ export default function FeaturedProducts() {
   const total = products.length;
   const loopProducts = [...products, ...products, ...products];
 
-  const absRef = useRef(total); // loop er bhetore current card er position
+  const absRef = useRef(total);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const getCards = () =>
     sliderRef.current?.querySelectorAll<HTMLElement>(".featured-card");
 
-  /* majhkhaner set e silently jump (user bujhte parbe na) */
+  /* majhkhaner set e silently jump */
   const recenter = () => {
     const slider = sliderRef.current;
     const cards = getCards();
     if (!slider || !cards) return;
-    if (slider.scrollWidth <= slider.clientWidth) return; // desktop e kichu korbe na
+    if (slider.scrollWidth <= slider.clientWidth) return;
 
     const abs = absRef.current;
-    if (abs >= total && abs < total * 2) return; // already majhkhane
+    if (abs >= total && abs < total * 2) return;
 
     const shift = abs < total ? total : -total;
     const from = cards[abs];
@@ -108,7 +108,6 @@ export default function FeaturedProducts() {
 
     slider.classList.add("no-anim");
 
-    // jei card gulo dekha jachhe, tader twin ke age thekei visible kore rakho
     cards.forEach((card, i) => {
       if (card.classList.contains("is-visible")) {
         cards[i + shift]?.classList.add("is-visible");
@@ -129,7 +128,7 @@ export default function FeaturedProducts() {
     );
   };
 
-  /* shuru te majhkhaner set er prothom card e boshao + rotation observer */
+  /* shuru te majhkhaner set e boshao + rotation observer */
   useEffect(() => {
     const slider = sliderRef.current;
     const cards = getCards();
@@ -151,7 +150,6 @@ export default function FeaturedProducts() {
           if (entry.intersectionRatio >= 0.5) {
             entry.target.classList.add("is-visible");
           } else if (entry.intersectionRatio === 0) {
-            // card bahire gele reset, jate abar ashle abar ghure
             entry.target.classList.remove("is-visible");
           }
         });
@@ -185,13 +183,11 @@ export default function FeaturedProducts() {
     setActiveIndex(((safe % total) + total) % total);
   };
 
-  /* dot click: nearest set er oi product e jabe */
   const scrollToProduct = (index: number) => {
     const base = Math.floor(absRef.current / total) * total;
     scrollToCard(base + index);
   };
 
-  /* arrow: shesh e gele first e ashbe, first e gele last e */
   const handlePrevious = () => scrollToCard(absRef.current - 1);
   const handleNext = () => scrollToCard(absRef.current + 1);
 
@@ -216,7 +212,6 @@ export default function FeaturedProducts() {
     absRef.current = nearestIndex;
     setActiveIndex(nearestIndex % total);
 
-    // scroll thamle majhkhane jump korbe
     if (timerRef.current) clearTimeout(timerRef.current);
     timerRef.current = setTimeout(recenter, 150);
   };
@@ -294,6 +289,7 @@ export default function FeaturedProducts() {
           ))}
         </div>
 
+        {/* ARROWS + DOTS (slider er niche) */}
         <div className="featured-slider-controls">
           <button
             type="button"
