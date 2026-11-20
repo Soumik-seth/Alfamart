@@ -1,7 +1,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-
+import "../componentscss/Categories.css";
 const categories = [
   {
     name: "A2 Gir Cow Ghee",

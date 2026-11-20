@@ -1,6 +1,6 @@
 
 "use client";
-
+import "../componentscss/FeaturedProducts.css";
 import Link from "next/link";
 import Image from "next/image";
 import { useRef, useState } from "react";

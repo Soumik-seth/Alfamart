@@ -6,6 +6,7 @@ import FeaturedProducts from "@/components/FeaturedProducts";
 import Footer from "@/components/Footer";
 import AlfaMartPromise from "@/components/AlfaMartPromise";
 import StoryElixir from "@/components/StoryElixir";
+import Reviews from "@/components/Reviews";
 export default function Home() {
   return (
     <main>
@@ -13,8 +14,9 @@ export default function Home() {
       <Hero />
       <ProductCategories />
       <FeaturedProducts />
-      <AlfaMartPromise />
       <StoryElixir />
+      <AlfaMartPromise />
+      <Reviews />
       <Footer />
     </main>
   );

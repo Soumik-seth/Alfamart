@@ -1,0 +1,77 @@
+
+/* =========================================
+   HERO SECTION
+========================================= */
+
+.hero-section {
+  width: 100%;
+  position: relative;
+  aspect-ratio: 2 / 1;
+  overflow: hidden;
+  background: var(--cream, #f7f3e8);
+}
+
+/* HERO IMAGE */
+
+.hero-image {
+  object-fit: contain !important;
+  object-position: center center !important;
+}
+
+/* HERO CONTENT */
+
+.hero-content {
+  position: absolute;
+  z-index: 2;
+  left: 7%;
+  top: 55%;
+  transform: translateY(-50%);
+}
+
+/* SHOP NOW BUTTON */
+
+.hero-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--green, #246b3b);
+  color: white;
+  padding: 13px 32px;
+  border-radius: 5px;
+  font-size: 15px;
+  font-weight: 700;
+  transition: background 0.3s ease;
+}
+
+.hero-button:hover {
+  background: var(--dark-green, #174b2c);
+}
+
+/* =========================================
+   MOBILE RESPONSIVE
+========================================= */
+
+@media (max-width: 600px) {
+
+  .hero-section {
+    width: 100%;
+    aspect-ratio: 7 / 4;
+  }
+
+  .hero-image {
+    object-fit: contain !important;
+    object-position: center center !important;
+  }
+
+  .hero-content {
+    left: 6%;
+    top: 65%;
+    transform: translateY(-50%);
+  }
+
+  .hero-button {
+    padding: 8px 15px;
+    font-size: 10px;
+    border-radius: 4px;
+  }
+}
