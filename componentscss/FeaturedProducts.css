@@ -276,6 +276,29 @@
     border-radius: 9px;
   }
 
+
+    /* 360° ROTATE ANIMATION (mobile only) */
+
+  .featured-card {
+    opacity: 0;
+    transform: perspective(900px) rotateY(-360deg) scale(0.6);
+    transition:
+      transform 1s cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 0.6s ease;
+    will-change: transform, opacity;
+  }
+
+  .featured-card.is-visible {
+    opacity: 1;
+    transform: perspective(900px) rotateY(0deg) scale(1);
+  }
+
+  /* mobile e hover er translateY jate rotation er sathe conflict na kore */
+  .featured-card.is-visible:hover {
+    transform: perspective(900px) rotateY(0deg) scale(1);
+    box-shadow: none;
+  }
+
   .featured-image {
     aspect-ratio: 1 / 1;
   }
@@ -410,5 +433,13 @@
     width: 6px;
     height: 6px;
     min-width: 6px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .featured-card,
+  .featured-card.is-visible {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
   }
 }

@@ -3,7 +3,7 @@
 import "../componentscss/FeaturedProducts.css";
 import Link from "next/link";
 import Image from "next/image";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const products = [
@@ -82,7 +82,28 @@ const products = [
 export default function FeaturedProducts() {
   const sliderRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
+useEffect(() => {
+  const slider = sliderRef.current;
+  if (!slider) return;
 
+  const cards = slider.querySelectorAll<HTMLElement>(".featured-card");
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("is-visible");
+          observer.unobserve(entry.target);
+        }
+      });
+    },
+    { root: slider, threshold: 0.5 }
+  );
+
+  cards.forEach((card) => observer.observe(card));
+
+  return () => observer.disconnect();
+}, []);
   const scrollToProduct = (index: number) => {
     const slider = sliderRef.current;
     if (!slider) return;
