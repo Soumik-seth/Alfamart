@@ -1,274 +1,311 @@
+
 "use client";
+
 import "../componentscss/FeaturedProducts.css";
+
 import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-const products = [
+type Product = {
+  id: number;
+  name: string;
+  image: string;
+  weight: string;
+  price: number;
+  originalPrice: number;
+  discount: string;
+  category: string;
+};
+
+type CartItem = Product & {
+  quantity: number;
+};
+
+const products: Product[] = [
   {
     id: 1,
     name: "A2 Gir Cow Ghee",
     image: "/images/gee.png",
-    weight: "500g",
-    price: 499,
-    originalPrice: 599,
-    discount: "17% OFF",
+    weight: "500 ml",
+    price: 650,
+    originalPrice: 800,
+    discount: "19% OFF",
     category: "ghee",
   },
   {
     id: 2,
-    name: "Natural Pure Honey",
+    name: "Pure Natural Honey",
     image: "/images/honey.png",
-    weight: "500g",
-    price: 349,
-    originalPrice: 399,
-    discount: "13% OFF",
+    weight: "500 gm",
+    price: 350,
+    originalPrice: 450,
+    discount: "22% OFF",
     category: "honey",
   },
   {
     id: 3,
-    name: "Cold Pressed Oil",
+    name: "Wood Pressed Oil",
     image: "/images/oil.png",
     weight: "1 Litre",
-    price: 399,
-    originalPrice: 499,
-    discount: "20% OFF",
+    price: 450,
+    originalPrice: 550,
+    discount: "18% OFF",
     category: "oil",
   },
   {
     id: 4,
     name: "Premium Floral Tea",
     image: "/images/tea.png",
-    weight: "250g",
-    price: 249,
-    originalPrice: 299,
-    discount: "17% OFF",
+    weight: "250 gm",
+    price: 280,
+    originalPrice: 350,
+    discount: "20% OFF",
     category: "tea",
   },
   {
     id: 5,
-    name: "Natural Fruit Juice",
+    name: "Juice, Jam & Chutney",
     image: "/images/juice.png",
-    weight: "500ml",
-    price: 199,
-    originalPrice: 249,
+    weight: "Combo Pack",
+    price: 399,
+    originalPrice: 499,
     discount: "20% OFF",
-    category: "juice-jams-chutney",
+    category: "juice",
   },
   {
     id: 6,
-    name: "Healthy Seeds & Dryfruits",
+    name: "Seeds & Dry Fruits",
     image: "/images/seeds.png",
-    weight: "250g",
-    price: 299,
-    originalPrice: 349,
-    discount: "14% OFF",
-    category: "seeds-dryfruits",
+    weight: "250 gm",
+    price: 320,
+    originalPrice: 400,
+    discount: "20% OFF",
+    category: "seeds",
   },
   {
     id: 7,
-    name: "Traditional Homemade Mithai",
+    name: "Traditional Mithai",
     image: "/images/mithi.png",
-    weight: "500g",
-    price: 449,
-    originalPrice: 499,
-    discount: "10% OFF",
+    weight: "500 gm",
+    price: 450,
+    originalPrice: 550,
+    discount: "18% OFF",
     category: "mithai",
   },
 ];
 
 export default function FeaturedProducts() {
   const sliderRef = useRef<HTMLDivElement>(null);
+
   const [activeIndex, setActiveIndex] = useState(0);
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [lastAddedId, setLastAddedId] = useState<number | null>(null);
 
-  const total = products.length;
-  const loopProducts = [...products, ...products, ...products];
+  // Load cart from localStorage
+  useEffect(() => {
+    try {
+      const savedCart = localStorage.getItem("alfamart-cart");
 
-  const absRef = useRef(total);
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const getCards = () =>
-    sliderRef.current?.querySelectorAll<HTMLElement>(".featured-card");
-
-  /* majhkhaner set e silently jump */
-  const recenter = () => {
-    const slider = sliderRef.current;
-    const cards = getCards();
-    if (!slider || !cards) return;
-    if (slider.scrollWidth <= slider.clientWidth) return;
-
-    const abs = absRef.current;
-    if (abs >= total && abs < total * 2) return;
-
-    const shift = abs < total ? total : -total;
-    const from = cards[abs];
-    const to = cards[abs + shift];
-    if (!from || !to) return;
-
-    slider.classList.add("no-anim");
-
-    cards.forEach((card, i) => {
-      if (card.classList.contains("is-visible")) {
-        cards[i + shift]?.classList.add("is-visible");
+      if (savedCart) {
+        setCartItems(JSON.parse(savedCart));
       }
-    });
+    } catch (error) {
+      console.error("Unable to load cart:", error);
+    }
+  }, []);
 
-    slider.style.scrollSnapType = "none";
-    slider.style.scrollBehavior = "auto";
-    slider.scrollLeft = slider.scrollLeft + (to.offsetLeft - from.offsetLeft);
-    absRef.current = abs + shift;
+  // Save cart and notify Navbar / other components
+  const saveCart = (updatedCart: CartItem[]) => {
+    setCartItems(updatedCart);
 
-    requestAnimationFrame(() =>
-      requestAnimationFrame(() => {
-        slider.style.scrollSnapType = "";
-        slider.style.scrollBehavior = "";
-        slider.classList.remove("no-anim");
-      })
-    );
+    try {
+      localStorage.setItem(
+        "alfamart-cart",
+        JSON.stringify(updatedCart)
+      );
+
+      window.dispatchEvent(new Event("cartUpdated"));
+    } catch (error) {
+      console.error("Unable to save cart:", error);
+    }
   };
 
-  /* shuru te majhkhaner set e boshao + rotation observer */
-  useEffect(() => {
-    const slider = sliderRef.current;
-    const cards = getCards();
-    if (!slider || !cards) return;
+  // Add product to cart
+  const handleAddToCart = (product: Product) => {
+    const existingItem = cartItems.find(
+      (item) => item.id === product.id
+    );
 
-    if (slider.scrollWidth > slider.clientWidth && cards[total]) {
-      slider.style.scrollSnapType = "none";
-      slider.style.scrollBehavior = "auto";
-      slider.scrollLeft = cards[total].offsetLeft - slider.offsetLeft;
-      requestAnimationFrame(() => {
-        slider.style.scrollSnapType = "";
-        slider.style.scrollBehavior = "";
-      });
+    let updatedCart: CartItem[];
+
+    if (existingItem) {
+      updatedCart = cartItems.map((item) =>
+        item.id === product.id
+          ? { ...item, quantity: item.quantity + 1 }
+          : item
+      );
+    } else {
+      updatedCart = [
+        ...cartItems,
+        {
+          ...product,
+          quantity: 1,
+        },
+      ];
     }
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.intersectionRatio >= 0.5) {
-            entry.target.classList.add("is-visible");
-          } else if (entry.intersectionRatio === 0) {
-            entry.target.classList.remove("is-visible");
-          }
-        });
-      },
-      { root: slider, threshold: [0, 0.5] }
+    saveCart(updatedCart);
+    setLastAddedId(product.id);
+
+    // Reset button text after 1.5 seconds
+    setTimeout(() => {
+      setLastAddedId((current) =>
+        current === product.id ? null : current
+      );
+    }, 1500);
+  };
+
+  // Existing slider functionality
+  const scrollToCard = (index: number) => {
+    if (!sliderRef.current) return;
+
+    const cards = sliderRef.current.querySelectorAll(
+      ".featured-product-card"
     );
 
-    cards.forEach((card) => observer.observe(card));
+    if (!cards[index]) return;
+
+    cards[index].scrollIntoView({
+      behavior: "smooth",
+      block: "nearest",
+      inline: "center",
+    });
+
+    setActiveIndex(index % products.length);
+  };
+
+  const handleNext = () => {
+    scrollToCard(activeIndex + 1);
+  };
+
+  const handlePrev = () => {
+    scrollToCard(
+      activeIndex === 0
+        ? products.length - 1
+        : activeIndex - 1
+    );
+  };
+
+  // Existing mobile infinite slider
+  const displayProducts = [
+    ...products,
+    ...products,
+    ...products,
+  ];
+
+  useEffect(() => {
+    const slider = sliderRef.current;
+
+    if (!slider) return;
+
+    const handleScroll = () => {
+      const cards = slider.querySelectorAll(
+        ".featured-product-card"
+      );
+
+      if (!cards.length) return;
+
+      const sliderCenter =
+        slider.getBoundingClientRect().left +
+        slider.offsetWidth / 2;
+
+      let closestIndex = 0;
+      let closestDistance = Infinity;
+
+      cards.forEach((card, index) => {
+        const rect = card.getBoundingClientRect();
+        const cardCenter = rect.left + rect.width / 2;
+        const distance = Math.abs(sliderCenter - cardCenter);
+
+        if (distance < closestDistance) {
+          closestDistance = distance;
+          closestIndex = index;
+        }
+      });
+
+      setActiveIndex(closestIndex % products.length);
+    };
+
+    slider.addEventListener("scroll", handleScroll);
 
     return () => {
-      observer.disconnect();
-      if (timerRef.current) clearTimeout(timerRef.current);
+      slider.removeEventListener("scroll", handleScroll);
     };
-  }, [total]);
-
-  const scrollToCard = (abs: number) => {
-    const slider = sliderRef.current;
-    const cards = getCards();
-    if (!slider || !cards) return;
-
-    const safe = Math.max(0, Math.min(cards.length - 1, abs));
-    const target = cards[safe];
-    if (!target) return;
-
-    slider.scrollTo({
-      left: target.offsetLeft - slider.offsetLeft,
-      behavior: "smooth",
-    });
-
-    absRef.current = safe;
-    setActiveIndex(((safe % total) + total) % total);
-  };
-
-  const scrollToProduct = (index: number) => {
-    const base = Math.floor(absRef.current / total) * total;
-    scrollToCard(base + index);
-  };
-
-  const handlePrevious = () => scrollToCard(absRef.current - 1);
-  const handleNext = () => scrollToCard(absRef.current + 1);
-
-  const handleScroll = () => {
-    const slider = sliderRef.current;
-    const cards = getCards();
-    if (!slider || !cards) return;
-
-    let nearestIndex = 0;
-    let smallestDistance = Infinity;
-
-    cards.forEach((card, index) => {
-      const distance = Math.abs(
-        card.offsetLeft - slider.offsetLeft - slider.scrollLeft
-      );
-      if (distance < smallestDistance) {
-        smallestDistance = distance;
-        nearestIndex = index;
-      }
-    });
-
-    absRef.current = nearestIndex;
-    setActiveIndex(nearestIndex % total);
-
-    if (timerRef.current) clearTimeout(timerRef.current);
-    timerRef.current = setTimeout(recenter, 150);
-  };
+  }, []);
 
   return (
-    <section className="featured-section">
-      <div className="featured-container">
+    <section className="featured-products-section">
 
-        <div className="featured-heading">
-          <span className="featured-subtitle">
-            HANDPICKED FOR YOU
-          </span>
+      <div className="featured-products-heading">
+        <span className="featured-small-title">
+          OUR COLLECTION
+        </span>
 
-          <h2>
-            Our <span>Featured Products</span>
-          </h2>
+        <h2>
+          Featured <span>Products</span>
+        </h2>
 
-          <p>
-            Explore our most loved natural and authentic products,
-            carefully selected for your everyday needs.
-          </p>
-        </div>
+        <p>
+          Discover our handpicked collection of natural
+          and authentic products.
+        </p>
+      </div>
+
+      <div className="featured-products-wrapper">
+
+        <button
+          className="featured-arrow featured-arrow-left"
+          onClick={handlePrev}
+          aria-label="Previous products"
+        >
+          <ChevronLeft size={22} />
+        </button>
 
         <div
-          className="featured-grid"
+          className="featured-products-slider"
           ref={sliderRef}
-          onScroll={handleScroll}
         >
-          {loopProducts.map((product, i) => (
+          {displayProducts.map((product, index) => (
             <div
-              className={`featured-card ${
-                i < total || i >= total * 2 ? "featured-clone" : ""
-              }`}
-              key={`${product.id}-${i}`}
+              className="featured-product-card"
+              key={`${product.id}-${index}`}
             >
-              <div className="featured-image">
-                <span className="discount-badge">
+              <div className="featured-product-image">
+
+                <span className="featured-discount">
                   {product.discount}
                 </span>
 
                 <Image
                   src={product.image}
                   alt={product.name}
-                  fill
-                  sizes="(max-width: 600px) 48vw, (max-width: 900px) 30vw, 22vw"
-                  className="featured-img"
+                  width={300}
+                  height={300}
                 />
+
               </div>
 
-              <div className="featured-details">
+              <div className="featured-product-info">
+
                 <h3>{product.name}</h3>
 
-                <span className="product-weight">
+                <p className="featured-product-weight">
                   {product.weight}
-                </span>
+                </p>
 
-                <div className="product-price">
+                <div className="featured-product-price">
                   <span className="current-price">
                     ₹{product.price}
                   </span>
@@ -278,59 +315,59 @@ export default function FeaturedProducts() {
                   </span>
                 </div>
 
-                <Link
-                  href={`/shop?category=${product.category}`}
-                  className="buy-now-btn"
-                >
-                  Buy Now
-                </Link>
+                {/* Product Buttons */}
+                <div className="product-buttons">
+
+                  <Link
+                    href={`/shop?category=${product.category}`}
+                    className="buy-now-btn"
+                  >
+                    Buy Now
+                  </Link>
+
+                  <button
+                    type="button"
+                    className="add-to-cart-btn"
+                    onClick={() => handleAddToCart(product)}
+                  >
+                    {lastAddedId === product.id
+                      ? "Added ✓"
+                      : "Add to Cart"}
+                  </button>
+
+                </div>
+
               </div>
             </div>
           ))}
         </div>
 
-        {/* ARROWS + DOTS (slider er niche) */}
-        <div className="featured-slider-controls">
-          <button
-            type="button"
-            className="slider-arrow"
-            onClick={handlePrevious}
-            aria-label="Previous product"
-          >
-            <ChevronLeft />
-          </button>
-
-          <div className="slider-dots">
-            {products.map((product, index) => (
-              <button
-                key={product.id}
-                type="button"
-                className={`slider-dot ${
-                  activeIndex === index ? "active" : ""
-                }`}
-                onClick={() => scrollToProduct(index)}
-                aria-label={`Go to product ${index + 1}`}
-              />
-            ))}
-          </div>
-
-          <button
-            type="button"
-            className="slider-arrow"
-            onClick={handleNext}
-            aria-label="Next product"
-          >
-            <ChevronRight />
-          </button>
-        </div>
-
-        <div className="featured-footer">
-          <Link href="/shop" className="view-all-btn">
-            View All Products
-          </Link>
-        </div>
+        <button
+          className="featured-arrow featured-arrow-right"
+          onClick={handleNext}
+          aria-label="Next products"
+        >
+          <ChevronRight size={22} />
+        </button>
 
       </div>
+
+      {/* Slider Dots */}
+      <div className="featured-slider-dots">
+        {products.map((product, index) => (
+          <button
+            key={product.id}
+            className={
+              activeIndex === index
+                ? "featured-dot active"
+                : "featured-dot"
+            }
+            onClick={() => scrollToCard(index)}
+            aria-label={`Go to product ${index + 1}`}
+          />
+        ))}
+      </div>
+
     </section>
   );
 }
