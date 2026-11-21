@@ -1,0 +1,44 @@
+.ann-bar {
+  width: 100%;
+  overflow: hidden;
+  background-color: #0b6b3a;
+  padding: 12px 0;
+  position: relative;
+  z-index: 50;
+}
+
+.ann-track {
+  display: flex;
+  width: max-content;
+  animation: ann-scroll 25s linear infinite;
+}
+
+.ann-bar:hover .ann-track {
+  animation-play-state: paused;
+}
+
+.ann-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 48px;
+  white-space: nowrap;
+  color: #d4af37;
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
+@keyframes ann-scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+@media (max-width: 640px) {
+  .ann-item { font-size: 14px; padding: 0 28px; }
+  .ann-track { animation-duration: 18s; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ann-track { animation: none; }
+}

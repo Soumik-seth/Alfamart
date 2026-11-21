@@ -7,9 +7,11 @@ import Footer from "@/components/Footer";
 import AlfaMartPromise from "@/components/AlfaMartPromise";
 import StoryElixir from "@/components/StoryElixir";
 import Reviews from "@/components/Reviews";
+import AnnouncementBar from "@/components/AnnouncementBar";
 export default function Home() {
   return (
     <main>
+      <AnnouncementBar />
       <Navbar />
       <Hero />
       <ProductCategories />
