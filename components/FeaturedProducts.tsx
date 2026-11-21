@@ -1,4 +1,3 @@
-
 "use client";
 
 import "../componentscss/FeaturedProducts.css";
@@ -22,6 +21,8 @@ type Product = {
 type CartItem = Product & {
   quantity: number;
 };
+
+const CART_KEY = "alfamart-cart";
 
 const products: Product[] = [
   {
@@ -96,8 +97,22 @@ const products: Product[] = [
   },
 ];
 
+const COUNT = products.length;
+
+// 3 copies: [clone][original][clone]
+// Desktop/tablet e shudhu middle (original) set dekhay, clone gulo CSS e hidden.
+// Mobile e 3 ta set-i thake, tai infinite loop hoy.
+const loopProducts = [0, 1, 2].flatMap((setIndex) =>
+  products.map((product) => ({
+    product,
+    setIndex,
+    isClone: setIndex !== 1,
+  }))
+);
+
 export default function FeaturedProducts() {
   const sliderRef = useRef<HTMLDivElement>(null);
+  const addedTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [activeIndex, setActiveIndex] = useState(0);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
@@ -106,14 +121,21 @@ export default function FeaturedProducts() {
   // Load cart from localStorage
   useEffect(() => {
     try {
-      const savedCart = localStorage.getItem("alfamart-cart");
+      const savedCart = localStorage.getItem(CART_KEY);
 
       if (savedCart) {
-        setCartItems(JSON.parse(savedCart));
+        const parsed = JSON.parse(savedCart);
+        if (Array.isArray(parsed)) setCartItems(parsed);
       }
     } catch (error) {
       console.error("Unable to load cart:", error);
     }
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (addedTimer.current) clearTimeout(addedTimer.current);
+    };
   }, []);
 
   // Save cart and notify Navbar / other components
@@ -121,11 +143,7 @@ export default function FeaturedProducts() {
     setCartItems(updatedCart);
 
     try {
-      localStorage.setItem(
-        "alfamart-cart",
-        JSON.stringify(updatedCart)
-      );
-
+      localStorage.setItem(CART_KEY, JSON.stringify(updatedCart));
       window.dispatchEvent(new Event("cartUpdated"));
     } catch (error) {
       console.error("Unable to save cart:", error);
@@ -134,100 +152,143 @@ export default function FeaturedProducts() {
 
   // Add product to cart
   const handleAddToCart = (product: Product) => {
-    const existingItem = cartItems.find(
-      (item) => item.id === product.id
-    );
+    // always read the latest cart, so other components' changes are not lost
+    let currentCart: CartItem[] = cartItems;
 
-    let updatedCart: CartItem[];
-
-    if (existingItem) {
-      updatedCart = cartItems.map((item) =>
-        item.id === product.id
-          ? { ...item, quantity: item.quantity + 1 }
-          : item
-      );
-    } else {
-      updatedCart = [
-        ...cartItems,
-        {
-          ...product,
-          quantity: 1,
-        },
-      ];
+    try {
+      const saved = localStorage.getItem(CART_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) currentCart = parsed;
+      }
+    } catch {
+      // fall back to state
     }
+
+    const existingItem = currentCart.find((item) => item.id === product.id);
+
+    const updatedCart: CartItem[] = existingItem
+      ? currentCart.map((item) =>
+          item.id === product.id
+            ? { ...item, quantity: item.quantity + 1 }
+            : item
+        )
+      : [...currentCart, { ...product, quantity: 1 }];
 
     saveCart(updatedCart);
     setLastAddedId(product.id);
 
     // Reset button text after 1.5 seconds
-    setTimeout(() => {
-      setLastAddedId((current) =>
-        current === product.id ? null : current
-      );
+    if (addedTimer.current) clearTimeout(addedTimer.current);
+    addedTimer.current = setTimeout(() => {
+      setLastAddedId((current) => (current === product.id ? null : current));
     }, 1500);
   };
 
-  // Existing slider functionality
-  const scrollToCard = (index: number) => {
-    if (!sliderRef.current) return;
+  // ---------- Slider helpers (mobile) ----------
 
-    const cards = sliderRef.current.querySelectorAll(
-      ".featured-product-card"
-    );
-
-    if (!cards[index]) return;
-
-    cards[index].scrollIntoView({
-      behavior: "smooth",
-      block: "nearest",
-      inline: "center",
-    });
-
-    setActiveIndex(index % products.length);
-  };
-
-  const handleNext = () => {
-    scrollToCard(activeIndex + 1);
-  };
-
-  const handlePrev = () => {
-    scrollToCard(
-      activeIndex === 0
-        ? products.length - 1
-        : activeIndex - 1
+  const getCards = () => {
+    const slider = sliderRef.current;
+    if (!slider) return [] as HTMLElement[];
+    return Array.from(
+      slider.querySelectorAll<HTMLElement>(".featured-card")
     );
   };
 
-  // Existing mobile infinite slider
-  const displayProducts = [
-    ...products,
-    ...products,
-    ...products,
-  ];
+  const scrollByCard = (direction: 1 | -1) => {
+    const slider = sliderRef.current;
+    const cards = getCards();
 
+    if (!slider || cards.length < 2) return;
+
+    const step = cards[1].offsetLeft - cards[0].offsetLeft;
+
+    slider.scrollBy({ left: direction * step, behavior: "smooth" });
+  };
+
+  const handleNext = () => scrollByCard(1);
+  const handlePrev = () => scrollByCard(-1);
+
+  // Dot click: sobcheye kachher copy te scroll korbe
+  const scrollToProduct = (index: number) => {
+    const slider = sliderRef.current;
+    const cards = getCards();
+
+    if (!slider || cards.length < COUNT * 3) return;
+
+    const base = cards[0].offsetLeft;
+    let target = 0;
+    let bestDistance = Infinity;
+
+    for (let set = 0; set < 3; set++) {
+      const left = cards[set * COUNT + index].offsetLeft - base;
+      const distance = Math.abs(left - slider.scrollLeft);
+
+      if (distance < bestDistance) {
+        bestDistance = distance;
+        target = left;
+      }
+    }
+
+    slider.scrollTo({ left: target, behavior: "smooth" });
+  };
+
+  // Infinite loop + active dot tracking (mobile only)
   useEffect(() => {
     const slider = sliderRef.current;
-
     if (!slider) return;
 
-    const handleScroll = () => {
-      const cards = slider.querySelectorAll(
-        ".featured-product-card"
-      );
+    const mq = window.matchMedia("(max-width: 600px)");
+    let endTimer: ReturnType<typeof setTimeout> | undefined;
+    let frame = 0;
 
+    const cardsList = () =>
+      Array.from(slider.querySelectorAll<HTMLElement>(".featured-card"));
+
+    const getSetWidth = () => {
+      const cards = cardsList();
+      if (cards.length < COUNT * 2) return 0;
+      return cards[COUNT].offsetLeft - cards[0].offsetLeft;
+    };
+
+    // instant jump (smooth scroll bondho kore)
+    const jumpTo = (left: number) => {
+      slider.style.scrollBehavior = "auto";
+      slider.scrollLeft = left;
+      slider.style.scrollBehavior = "";
+    };
+
+    // sob somoy middle set er moddhe rakhbe
+    const normalize = () => {
+      if (!mq.matches) return;
+
+      const setWidth = getSetWidth();
+      if (setWidth <= 0) return;
+
+      const left = slider.scrollLeft;
+
+      if (left < setWidth - 2) {
+        jumpTo(left + setWidth);
+      } else if (left >= setWidth * 2 + 2) {
+        jumpTo(left - setWidth);
+      }
+    };
+
+    const updateActive = () => {
+      if (!mq.matches) return;
+
+      const cards = cardsList();
       if (!cards.length) return;
 
-      const sliderCenter =
-        slider.getBoundingClientRect().left +
-        slider.offsetWidth / 2;
+      const sliderLeft = slider.getBoundingClientRect().left;
 
       let closestIndex = 0;
       let closestDistance = Infinity;
 
       cards.forEach((card, index) => {
-        const rect = card.getBoundingClientRect();
-        const cardCenter = rect.left + rect.width / 2;
-        const distance = Math.abs(sliderCenter - cardCenter);
+        const distance = Math.abs(
+          card.getBoundingClientRect().left - sliderLeft
+        );
 
         if (distance < closestDistance) {
           closestDistance = distance;
@@ -235,89 +296,135 @@ export default function FeaturedProducts() {
         }
       });
 
-      setActiveIndex(closestIndex % products.length);
+      setActiveIndex(closestIndex % COUNT);
     };
 
-    slider.addEventListener("scroll", handleScroll);
+    const onScroll = () => {
+      if (!mq.matches) return;
+
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(updateActive);
+
+      clearTimeout(endTimer);
+      endTimer = setTimeout(() => {
+        normalize();
+        updateActive();
+      }, 140);
+    };
+
+    const setup = () => {
+      if (mq.matches) {
+        normalize();
+        updateActive();
+      } else {
+        jumpTo(0);
+        setActiveIndex(0);
+      }
+    };
+
+    setup();
+
+    slider.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", setup);
+    mq.addEventListener("change", setup);
 
     return () => {
-      slider.removeEventListener("scroll", handleScroll);
+      clearTimeout(endTimer);
+      cancelAnimationFrame(frame);
+      slider.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", setup);
+      mq.removeEventListener("change", setup);
     };
   }, []);
 
+  // 360° rotate animation trigger (card screen e ashle .is-visible lagbe)
+  useEffect(() => {
+    const slider = sliderRef.current;
+    if (!slider) return;
+
+    const allCards = slider.querySelectorAll<HTMLElement>(".featured-card");
+
+    if (typeof IntersectionObserver === "undefined") {
+      allCards.forEach((card) => card.classList.add("is-visible"));
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+
+          const id = (entry.target as HTMLElement).dataset.product;
+
+          // same product er shob copy ke ekshathe visible kora hoy,
+          // jate loop jump er somoy kono card blink na kore
+          slider
+            .querySelectorAll<HTMLElement>(`[data-product="${id}"]`)
+            .forEach((el) => el.classList.add("is-visible"));
+
+          observer.unobserve(entry.target);
+        });
+      },
+      { threshold: 0.35 }
+    );
+
+    allCards.forEach((card) => observer.observe(card));
+
+    return () => observer.disconnect();
+  }, []);
+
   return (
-    <section className="featured-products-section">
+    <section className="featured-section">
+      <div className="featured-container">
+        <div className="featured-heading">
+          <span className="featured-subtitle">OUR COLLECTION</span>
 
-      <div className="featured-products-heading">
-        <span className="featured-small-title">
-          OUR COLLECTION
-        </span>
+          <h2>
+            Featured <span>Products</span>
+          </h2>
 
-        <h2>
-          Featured <span>Products</span>
-        </h2>
+          <p>
+            Discover our handpicked collection of natural and authentic
+            products.
+          </p>
+        </div>
 
-        <p>
-          Discover our handpicked collection of natural
-          and authentic products.
-        </p>
-      </div>
-
-      <div className="featured-products-wrapper">
-
-        <button
-          className="featured-arrow featured-arrow-left"
-          onClick={handlePrev}
-          aria-label="Previous products"
-        >
-          <ChevronLeft size={22} />
-        </button>
-
-        <div
-          className="featured-products-slider"
-          ref={sliderRef}
-        >
-          {displayProducts.map((product, index) => (
+        <div className="featured-grid" ref={sliderRef}>
+          {loopProducts.map(({ product, setIndex, isClone }) => (
             <div
-              className="featured-product-card"
-              key={`${product.id}-${index}`}
+              className={
+                isClone ? "featured-card featured-clone" : "featured-card"
+              }
+              data-product={product.id}
+              key={`${product.id}-${setIndex}`}
             >
-              <div className="featured-product-image">
-
-                <span className="featured-discount">
-                  {product.discount}
-                </span>
+              <div className="featured-image">
+                <span className="discount-badge">{product.discount}</span>
 
                 <Image
+                  className="featured-img"
                   src={product.image}
                   alt={product.name}
                   width={300}
                   height={300}
+                  sizes="(max-width: 600px) 50vw, (max-width: 900px) 33vw, 25vw"
                 />
-
               </div>
 
-              <div className="featured-product-info">
-
+              <div className="featured-details">
                 <h3>{product.name}</h3>
 
-                <p className="featured-product-weight">
-                  {product.weight}
-                </p>
+                <span className="product-weight">{product.weight}</span>
 
-                <div className="featured-product-price">
-                  <span className="current-price">
-                    ₹{product.price}
-                  </span>
+                <div className="product-price">
+                  <span className="current-price">₹{product.price}</span>
 
                   <span className="original-price">
                     ₹{product.originalPrice}
                   </span>
                 </div>
 
-                {/* Product Buttons */}
                 <div className="product-buttons">
-
                   <Link
                     href={`/shop?category=${product.category}`}
                     className="buy-now-btn"
@@ -330,44 +437,55 @@ export default function FeaturedProducts() {
                     className="add-to-cart-btn"
                     onClick={() => handleAddToCart(product)}
                   >
-                    {lastAddedId === product.id
-                      ? "Added ✓"
-                      : "Add to Cart"}
+                    {lastAddedId === product.id ? "Added ✓" : "Add to Cart"}
                   </button>
-
                 </div>
-
               </div>
             </div>
           ))}
         </div>
 
-        <button
-          className="featured-arrow featured-arrow-right"
-          onClick={handleNext}
-          aria-label="Next products"
-        >
-          <ChevronRight size={22} />
-        </button>
-
-      </div>
-
-      {/* Slider Dots */}
-      <div className="featured-slider-dots">
-        {products.map((product, index) => (
+        {/* Mobile arrows + dots */}
+        <div className="featured-slider-controls">
           <button
-            key={product.id}
-            className={
-              activeIndex === index
-                ? "featured-dot active"
-                : "featured-dot"
-            }
-            onClick={() => scrollToCard(index)}
-            aria-label={`Go to product ${index + 1}`}
-          />
-        ))}
-      </div>
+            type="button"
+            className="slider-arrow"
+            onClick={handlePrev}
+            aria-label="Previous products"
+          >
+            <ChevronLeft />
+          </button>
 
+          <div className="slider-dots">
+            {products.map((product, index) => (
+              <button
+                type="button"
+                key={product.id}
+                className={
+                  activeIndex === index ? "slider-dot active" : "slider-dot"
+                }
+                onClick={() => scrollToProduct(index)}
+                aria-label={`Go to product ${index + 1}`}
+              />
+            ))}
+          </div>
+
+          <button
+            type="button"
+            className="slider-arrow"
+            onClick={handleNext}
+            aria-label="Next products"
+          >
+            <ChevronRight />
+          </button>
+        </div>
+
+        <div className="featured-footer">
+          <Link href="/shop" className="view-all-btn">
+            View All Products
+          </Link>
+        </div>
+      </div>
     </section>
   );
 }
