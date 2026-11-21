@@ -256,6 +256,11 @@
   display: none;
 }
 
+/* infinite loop jump er somoy animation off (blink rokhte) */
+.featured-grid.is-jumping .featured-card {
+  transition: none !important;
+}
+
 /* =========================================
    TABLET RESPONSIVE
 ========================================= */

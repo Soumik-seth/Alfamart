@@ -251,11 +251,41 @@ export default function FeaturedProducts() {
       return cards[COUNT].offsetLeft - cards[0].offsetLeft;
     };
 
-    // instant jump (smooth scroll bondho kore)
+    // simple instant jump (smooth scroll bondho kore)
     const jumpTo = (left: number) => {
       slider.style.scrollBehavior = "auto";
       slider.scrollLeft = left;
       slider.style.scrollBehavior = "";
+    };
+
+    // loop jump: ek set (+1 / -1) shorano hoy, ar card er
+    // "is-visible" state ta copy hoye jay, tai kono blink / re-animation hoy na
+    const jumpBySet = (direction: 1 | -1, setWidth: number) => {
+      const cards = cardsList();
+      const total = cards.length;
+      const oldState = cards.map((card) =>
+        card.classList.contains("is-visible")
+      );
+
+      slider.classList.add("is-jumping");
+
+      jumpTo(slider.scrollLeft + direction * setWidth);
+
+      const shift = direction * COUNT;
+
+      cards.forEach((card, j) => {
+        const was = oldState[(((j - shift) % total) + total) % total];
+        card.classList.toggle("is-visible", was);
+      });
+
+      // style flush kore tarpor transition abar chalu
+      void slider.offsetWidth;
+
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          slider.classList.remove("is-jumping");
+        });
+      });
     };
 
     // sob somoy middle set er moddhe rakhbe
@@ -268,9 +298,9 @@ export default function FeaturedProducts() {
       const left = slider.scrollLeft;
 
       if (left < setWidth - 2) {
-        jumpTo(left + setWidth);
+        jumpBySet(1, setWidth);
       } else if (left >= setWidth * 2 + 2) {
-        jumpTo(left - setWidth);
+        jumpBySet(-1, setWidth);
       }
     };
 
@@ -314,7 +344,15 @@ export default function FeaturedProducts() {
 
     const setup = () => {
       if (mq.matches) {
-        normalize();
+        const setWidth = getSetWidth();
+
+        if (setWidth > 0 && slider.scrollLeft < setWidth - 2) {
+          // first load: middle set e niye jai (kono card ekhono visible na)
+          jumpTo(slider.scrollLeft + setWidth);
+        } else {
+          normalize();
+        }
+
         updateActive();
       } else {
         jumpTo(0);
@@ -337,7 +375,8 @@ export default function FeaturedProducts() {
     };
   }, []);
 
-  // 360° rotate animation trigger (card screen e ashle .is-visible lagbe)
+  // 360° rotate animation: card screen e ashle chalu hoy,
+  // screen theke ber hole reset hoy, tai abar ashle abar rotate hoy
   useEffect(() => {
     const slider = sliderRef.current;
     if (!slider) return;
@@ -352,20 +391,16 @@ export default function FeaturedProducts() {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (!entry.isIntersecting) return;
+          const card = entry.target as HTMLElement;
 
-          const id = (entry.target as HTMLElement).dataset.product;
-
-          // same product er shob copy ke ekshathe visible kora hoy,
-          // jate loop jump er somoy kono card blink na kore
-          slider
-            .querySelectorAll<HTMLElement>(`[data-product="${id}"]`)
-            .forEach((el) => el.classList.add("is-visible"));
-
-          observer.unobserve(entry.target);
+          if (entry.intersectionRatio >= 0.35) {
+            card.classList.add("is-visible");
+          } else if (entry.intersectionRatio <= 0.05) {
+            card.classList.remove("is-visible");
+          }
         });
       },
-      { threshold: 0.35 }
+      { threshold: [0, 0.05, 0.35] }
     );
 
     allCards.forEach((card) => observer.observe(card));
