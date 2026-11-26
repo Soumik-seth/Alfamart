@@ -50,7 +50,7 @@ export default function Reviews() {
               </div>
 
               <p className="review-text">
-                "{item.review}"
+                &ldquo;{item.review}&rdquo;
               </p>
 
               <div className="review-user">

@@ -1,0 +1,131 @@
+
+.register-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 30px 16px;
+  background: #f7f3e8;
+}
+
+.register-card {
+  width: 100%;
+  max-width: 460px;
+  padding: 38px 40px;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 8px 35px rgba(23, 75, 44, 0.09);
+}
+
+.register-logo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: #246b3b;
+  font-size: 27px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-decoration: none;
+}
+
+.register-logo span {
+  font-size: 10px;
+  letter-spacing: 2px;
+  margin-top: 3px;
+}
+
+.register-card h1 {
+  text-align: center;
+  color: #174b2c;
+  font-size: 27px;
+  margin: 25px 0 8px;
+}
+
+.register-subtitle {
+  text-align: center;
+  color: #777;
+  font-size: 14px;
+  margin-bottom: 25px;
+}
+
+.register-field {
+  margin-bottom: 17px;
+}
+
+.register-field label {
+  display: block;
+  margin-bottom: 8px;
+  color: #333;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.register-field input {
+  width: 100%;
+  padding: 13px 14px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  outline: none;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.register-field input:focus {
+  border-color: #246b3b;
+}
+
+.register-card form button {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 8px;
+  background: #246b3b;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.register-card form button:hover {
+  background: #174b2c;
+}
+
+.register-card form button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.register-error {
+  color: #d32f2f;
+  font-size: 13px;
+  margin-bottom: 15px;
+}
+
+.register-switch {
+  text-align: center;
+  font-size: 14px;
+  color: #666;
+  margin-top: 22px;
+}
+
+.register-switch a {
+  color: #246b3b;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.register-back {
+  display: block;
+  text-align: center;
+  margin-top: 20px;
+  color: #777;
+  font-size: 13px;
+  text-decoration: none;
+}
+
+@media (max-width: 480px) {
+  .register-card {
+    padding: 28px 20px;
+  }
+}

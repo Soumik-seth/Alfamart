@@ -1,0 +1,74 @@
+
+/* =================================
+   SHOP PAGE MAIN LAYOUT
+================================= */
+
+.shop-page {
+  width: 100%;
+  min-height: 100vh;
+  background: #fffefa;
+  color: #263d27;
+  overflow-x: hidden;
+}
+
+.shop-page-container {
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 18px 32px 45px;
+}
+
+/* MAIN SHOP LAYOUT */
+
+.shop-layout {
+  display: grid;
+  grid-template-columns: 245px minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+
+.shop-main {
+  min-width: 0;
+  width: 100%;
+}
+
+/* =================================
+   RESPONSIVE TABLET
+================================= */
+
+@media (max-width: 1000px) {
+  .shop-page-container {
+    padding: 16px 22px 35px;
+  }
+
+  .shop-layout {
+    grid-template-columns: 215px minmax(0, 1fr);
+    gap: 18px;
+  }
+}
+
+/* =================================
+   MOBILE
+================================= */
+
+@media (max-width: 700px) {
+  .shop-page-container {
+    padding: 14px 15px 30px;
+  }
+
+  .shop-layout {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .shop-main {
+    width: 100%;
+  }
+}
+
+@media (max-width: 400px) {
+  .shop-page-container {
+    padding-left: 11px;
+    padding-right: 11px;
+  }
+}

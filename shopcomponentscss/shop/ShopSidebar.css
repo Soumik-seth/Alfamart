@@ -1,0 +1,256 @@
+
+/* =================================
+   SHOP SIDEBAR
+================================= */
+
+.shop-sidebar {
+  width: 245px;
+  min-width: 245px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.sidebar-content {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* COMMON SECTION */
+
+.sidebar-section {
+  width: 100%;
+  padding: 17px;
+  background: #fffdf7;
+  border: 1px solid #eeeade;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(36, 75, 50, 0.04);
+}
+
+.sidebar-title {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 15px;
+  color: #174b2c;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.sidebar-title-icon {
+  color: #246b3b;
+  font-size: 19px;
+}
+
+/* CATEGORY LIST */
+
+.category-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.category-item {
+  width: 100%;
+  min-height: 36px;
+  display: flex;
+  align-items: center;
+  text-align: left;
+  padding: 8px 10px;
+  border: none;
+  border-radius: 5px;
+  background: transparent;
+  color: #303b30;
+  font-size: 12.5px;
+  line-height: 1.5;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.category-item:hover {
+  background: #edf2e7;
+  color: #174b2c;
+}
+
+.category-item.active {
+  background: #e6eddb;
+  color: #174b2c;
+  font-weight: 700;
+}
+
+/* PRICE RANGE */
+
+.price-range-input {
+  width: 100%;
+  accent-color: #17633b;
+  cursor: pointer;
+}
+
+.price-range-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+  color: #444;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* AVAILABILITY */
+
+.availability-option {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: #343d34;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.availability-option input {
+  width: 16px;
+  height: 16px;
+  accent-color: #17633b;
+  cursor: pointer;
+}
+
+/* SHIPPING BANNER */
+
+.sidebar-shipping-banner {
+  position: relative;
+  overflow: hidden;
+  min-height: 195px;
+  padding: 23px 19px;
+  border-radius: 10px;
+  background: #f8f0d9;
+  color: #174b2c;
+}
+
+.shipping-icon {
+  font-size: 38px;
+  margin-bottom: 8px;
+}
+
+.sidebar-shipping-banner h3 {
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.sidebar-shipping-banner p {
+  margin-top: 12px;
+  color: #3e493d;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.shipping-decoration {
+  position: absolute;
+  right: 15px;
+  bottom: 10px;
+  font-size: 32px;
+  color: #78934d;
+  opacity: 0.7;
+}
+
+/* CLEAR FILTERS */
+
+.clear-filters-btn {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #eeeade;
+  border-radius: 8px;
+  background: #fffdf7;
+  color: #174b2c;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.clear-filters-btn:hover {
+  background: #edf2e7;
+}
+
+/* MOBILE TOGGLE */
+
+.sidebar-toggle {
+  display: none;
+}
+
+.category-item:focus-visible,
+.clear-filters-btn:focus-visible,
+.sidebar-toggle:focus-visible {
+  outline: 2px solid #17633b;
+  outline-offset: 2px;
+}
+
+/* TABLET */
+
+@media (max-width: 1000px) and (min-width: 701px) {
+  .shop-sidebar {
+    width: 215px;
+    min-width: 215px;
+  }
+
+  .sidebar-section {
+    padding: 14px;
+  }
+}
+
+/* MOBILE */
+
+@media (max-width: 700px) {
+  .shop-sidebar {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .sidebar-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 13px 16px;
+    border: 1px solid #eeeade;
+    border-radius: 9px;
+    background: #fffdf7;
+    color: #174b2c;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .filter-icon {
+    margin-right: 9px;
+    font-size: 18px;
+  }
+
+  .filter-arrow {
+    font-size: 20px;
+  }
+
+  .sidebar-toggle-badge {
+    display: inline-block;
+    min-width: 20px;
+    margin-left: 8px;
+    padding: 2px 6px;
+    border-radius: 999px;
+    background: #17633b;
+    color: #fff;
+    font-size: 12px;
+    text-align: center;
+  }
+
+  .sidebar-content {
+    display: none;
+  }
+
+  .sidebar-content.open {
+    display: flex;
+  }
+
+  .sidebar-shipping-banner {
+    min-height: 160px;
+  }
+}

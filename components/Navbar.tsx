@@ -1,8 +1,11 @@
 
 "use client";
+
 import "../componentscss/Navbar.css";
 import Link from "next/link";
+import Image from "next/image";
 import { useState } from "react";
+
 import {
   Search,
   UserRound,
@@ -11,8 +14,12 @@ import {
   X,
 } from "lucide-react";
 
+import { useCart } from "@/context/CartContext";
+
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
+
+  const { cartCount } = useCart();
 
   const closeMenu = () => setMenuOpen(false);
 
@@ -23,9 +30,11 @@ export default function Navbar() {
 
           {/* BRAND */}
           <Link href="/" className="brand">
-            <img
+            <Image
               src="/images/alfamartlogo.jpeg"
               alt="Alfa Mart Logo"
+              width={60}
+              height={60}
             />
 
             <div className="brand-text">
@@ -45,6 +54,7 @@ export default function Navbar() {
           <div className="nav-right">
 
             <div className="nav-actions">
+
               <Link href="/shop" aria-label="Search">
                 <Search />
               </Link>
@@ -53,9 +63,21 @@ export default function Navbar() {
                 <UserRound />
               </Link>
 
-              <Link href="/cart" aria-label="Cart">
+              {/* CART ICON */}
+              <Link
+                href="/cart"
+                className="nav-cart-link"
+                aria-label={`Cart, ${cartCount} items`}
+              >
                 <ShoppingBag />
+
+                {cartCount > 0 && (
+                  <span className="nav-cart-count">
+                    {cartCount > 99 ? "99+" : cartCount}
+                  </span>
+                )}
               </Link>
+
             </div>
 
             <button
@@ -112,6 +134,7 @@ export default function Navbar() {
             </div>
 
             <div className="drawer-actions">
+
               <Link href="/shop" onClick={closeMenu}>
                 <Search />
                 <span>Search</span>
@@ -124,8 +147,9 @@ export default function Navbar() {
 
               <Link href="/cart" onClick={closeMenu}>
                 <ShoppingBag />
-                <span>Cart</span>
+                <span>Cart ({cartCount})</span>
               </Link>
+
             </div>
 
           </div>

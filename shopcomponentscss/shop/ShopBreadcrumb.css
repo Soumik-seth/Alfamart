@@ -1,0 +1,45 @@
+
+/* =================================
+   SHOP BREADCRUMB
+================================= */
+
+.shop-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 32px;
+  margin-bottom: 15px;
+  font-size: 13px;
+  color: #777;
+}
+
+.shop-breadcrumb a {
+  color: #526052;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.shop-breadcrumb a:hover {
+  color: #17633b;
+}
+
+.breadcrumb-separator {
+  color: #999;
+  font-size: 19px;
+  line-height: 1;
+}
+
+.breadcrumb-current {
+  color: #174b2c;
+  font-weight: 600;
+}
+
+/* MOBILE */
+
+@media (max-width: 600px) {
+  .shop-breadcrumb {
+    gap: 8px;
+    font-size: 12px;
+    margin-bottom: 12px;
+  }
+}

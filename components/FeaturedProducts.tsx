@@ -115,22 +115,21 @@ export default function FeaturedProducts() {
   const addedTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [activeIndex, setActiveIndex] = useState(0);
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
-  const [lastAddedId, setLastAddedId] = useState<number | null>(null);
+  const [cartItems, setCartItems] = useState<CartItem[]>(() => {
+    if (typeof window === "undefined") return [];
 
-  // Load cart from localStorage
-  useEffect(() => {
     try {
-      const savedCart = localStorage.getItem(CART_KEY);
+      const savedCart = window.localStorage.getItem(CART_KEY);
+      if (!savedCart) return [];
 
-      if (savedCart) {
-        const parsed = JSON.parse(savedCart);
-        if (Array.isArray(parsed)) setCartItems(parsed);
-      }
+      const parsed = JSON.parse(savedCart);
+      return Array.isArray(parsed) ? parsed : [];
     } catch (error) {
       console.error("Unable to load cart:", error);
+      return [];
     }
-  }, []);
+  });
+  const [lastAddedId, setLastAddedId] = useState<number | null>(null);
 
   useEffect(() => {
     return () => {

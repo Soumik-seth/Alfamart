@@ -1,0 +1,290 @@
+
+.page {
+  padding: 32px;
+  color: #174b2c;
+}
+
+.pageHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 25px;
+}
+
+.eyebrow {
+  margin: 0 0 8px;
+  color: #246b3b;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+}
+
+.pageHeader h1 {
+  margin: 0;
+  font-size: 30px;
+  font-weight: 800;
+}
+
+.pageHeader p:last-child {
+  margin: 8px 0 0;
+  color: #888;
+  font-size: 13px;
+}
+
+.totalCount {
+  padding: 10px 15px;
+  border-radius: 30px;
+  background: #edf5ec;
+  color: #246b3b;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.message {
+  padding: 13px 16px;
+  margin-bottom: 18px;
+  border: 1px solid #d8e8d6;
+  border-radius: 9px;
+  background: #edf5ec;
+  color: #246b3b;
+  font-size: 13px;
+}
+
+.formCard,
+.listCard {
+  padding: 25px;
+  margin-bottom: 22px;
+  border: 1px solid #eeeae0;
+  border-radius: 15px;
+  background: #fff;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.025);
+}
+
+.cardHeading {
+  margin-bottom: 22px;
+}
+
+.cardHeading h2 {
+  margin: 0;
+  font-size: 19px;
+  color: #174b2c;
+}
+
+.cardHeading p {
+  margin: 7px 0 0;
+  color: #888;
+  font-size: 12px;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.form label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: #174b2c;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.form input:not([type="checkbox"]),
+.form textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #e5e8df;
+  border-radius: 8px;
+  outline: none;
+  background: #fffefa;
+  color: #333;
+  font-family: inherit;
+  font-size: 13px;
+  box-sizing: border-box;
+}
+
+.form input:focus,
+.form textarea:focus {
+  border-color: #246b3b;
+  box-shadow: 0 0 0 3px rgba(36, 107, 59, 0.08);
+}
+
+.form textarea {
+  resize: vertical;
+}
+
+.formRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: end;
+  gap: 20px;
+}
+
+.form .statusLabel {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  min-height: 42px;
+  cursor: pointer;
+}
+
+.statusLabel input {
+  width: 17px;
+  height: 17px;
+  accent-color: #246b3b;
+}
+
+.formActions {
+  display: flex;
+  gap: 10px;
+}
+
+.formActions button {
+  padding: 12px 20px;
+  border: 0;
+  border-radius: 8px;
+  background: #246b3b;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.formActions button:hover {
+  background: #174b2c;
+}
+
+.formActions button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.formActions .cancelButton {
+  background: #eeeae0;
+  color: #174b2c;
+}
+
+.tableWrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.table th {
+  padding: 14px 12px;
+  border-bottom: 1px solid #eeeae0;
+  background: #fffefa;
+  color: #888;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.table td {
+  padding: 15px 12px;
+  border-bottom: 1px solid #f0eee8;
+  color: #555;
+  font-size: 12px;
+}
+
+.table td strong,
+.table td small {
+  display: block;
+}
+
+.table td strong {
+  color: #174b2c;
+  font-size: 12px;
+}
+
+.table td small {
+  max-width: 220px;
+  margin-top: 5px;
+  overflow: hidden;
+  color: #999;
+  text-overflow: ellipsis;
+}
+
+.activeStatus,
+.inactiveStatus {
+  padding: 6px 10px;
+  border: 0;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.activeStatus {
+  background: #edf5ec;
+  color: #246b3b;
+}
+
+.inactiveStatus {
+  background: #f5e9e7;
+  color: #b34a3e;
+}
+
+.actions {
+  display: flex;
+  gap: 7px;
+}
+
+.actions button {
+  padding: 7px 10px;
+  border: 1px solid #e5e8df;
+  border-radius: 6px;
+  background: #fff;
+  color: #246b3b;
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.actions .deleteButton {
+  border-color: #f1d9d5;
+  color: #bd4438;
+}
+
+.empty {
+  padding: 25px 10px;
+  color: #888;
+  font-size: 13px;
+  text-align: center;
+}
+
+@media (max-width: 700px) {
+  .page {
+    padding: 22px 15px;
+  }
+
+  .pageHeader {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .pageHeader h1 {
+    font-size: 26px;
+  }
+
+  .formCard,
+  .listCard {
+    padding: 18px 14px;
+  }
+
+  .formRow {
+    grid-template-columns: 1fr;
+  }
+
+  .formActions {
+    flex-wrap: wrap;
+  }
+}
