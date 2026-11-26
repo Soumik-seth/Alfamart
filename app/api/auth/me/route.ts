@@ -1,20 +1,15 @@
 
-import { connection, NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { jwtVerify } from "jose";
 import { prisma } from "@/lib/prisma";
 
 export async function GET(request: NextRequest) {
   try {
-    await connection();
     const token = request.cookies.get("alfamart_session")?.value;
 
     if (!token) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Not logged in",
-          user: null,
-        },
+        { success: false, message: "Not logged in", user: null },
         { status: 401 }
       );
     }
@@ -27,7 +22,9 @@ export async function GET(request: NextRequest) {
 
     const secretKey = new TextEncoder().encode(secret);
 
-    const { payload } = await jwtVerify(token, secretKey);
+    const { payload } = await jwtVerify(token, secretKey, {
+      algorithms: ["HS256"],
+    });
 
     if (!payload.sub) {
       return NextResponse.json(

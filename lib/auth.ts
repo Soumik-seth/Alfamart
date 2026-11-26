@@ -3,11 +3,10 @@ import "server-only";
 
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { connection } from "next/server";
 import { jwtVerify } from "jose";
 import { prisma } from "@/lib/prisma";
 
-const COOKIE_NAME = "alfamart_session";
+export const COOKIE_NAME = "alfamart_session";
 
 function getAuthSecret() {
   const secret = process.env.AUTH_SECRET;
@@ -19,29 +18,19 @@ function getAuthSecret() {
   return new TextEncoder().encode(secret);
 }
 
-// Get currently logged-in user
-export async function getCurrentUser() {
-  await connection();
-  const cookieStore = await cookies();
-  const token = cookieStore.get(COOKIE_NAME)?.value;
-
-  if (!token) {
-    return null;
-  }
+// Verify token and get user
+export async function getUserFromToken(token?: string) {
+  if (!token) return null;
 
   try {
     const { payload } = await jwtVerify(token, getAuthSecret(), {
       algorithms: ["HS256"],
     });
 
-    if (!payload.sub) {
-      return null;
-    }
+    if (!payload.sub) return null;
 
     return await prisma.user.findUnique({
-      where: {
-        id: payload.sub,
-      },
+      where: { id: payload.sub },
       select: {
         id: true,
         name: true,
@@ -55,17 +44,20 @@ export async function getCurrentUser() {
   }
 }
 
+// Get currently logged-in user (Server Components)
+export async function getCurrentUser() {
+  const cookieStore = await cookies();
+  const token = cookieStore.get(COOKIE_NAME)?.value;
+
+  return getUserFromToken(token);
+}
+
 // Protect admin pages
 export async function requireAdmin() {
   const user = await getCurrentUser();
 
-  if (!user) {
-    redirect("/login");
-  }
-
-  if (user.role !== "ADMIN") {
-    redirect("/");
-  }
+  if (!user) redirect("/login");
+  if (user.role !== "ADMIN") redirect("/");
 
   return user;
 }

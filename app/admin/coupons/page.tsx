@@ -7,7 +7,7 @@ import CouponManager from "@/admin/coupons/CouponManager";
 async function CouponsContent() {
   await connection();
 
-  const admin = await requireAdmin();
+  await requireAdmin();
 
   return <CouponManager />;
 }

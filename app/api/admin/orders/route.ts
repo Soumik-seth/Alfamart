@@ -1,11 +1,12 @@
 
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getCurrentUser } from "@/lib/auth";
+import { getUserFromToken, COOKIE_NAME } from "@/lib/auth";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const user = await getCurrentUser();
+    const token = request.cookies.get(COOKIE_NAME)?.value;
+    const user = await getUserFromToken(token);
 
     if (!user) {
       return NextResponse.json(
